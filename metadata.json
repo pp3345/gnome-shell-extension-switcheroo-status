@@ -1,0 +1,8 @@
+{
+  "shell-version": [
+    "3.22.3"
+  ],
+  "uuid": "switcheroo-status@pp3345.net",
+  "name": "VGA Switcheroo Status",
+  "description": "Shows VGA switcheroo subsystem status on laptops with hybrid graphics (e. g. NVIDIA Optimus)"
+}
