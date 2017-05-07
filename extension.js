@@ -87,6 +87,7 @@ function SwitcherooStatusIndicator() {
 
 SwitcherooStatusIndicator.prototype = {
     __proto__: PanelMenu.Button.prototype,
+    _menuItems: {},
     _init: function () {
         PanelMenu.Button.prototype._init.call(this, St.Align.START);
 
@@ -138,6 +139,17 @@ SwitcherooStatusIndicator.prototype = {
             if (GPU.powerState.toLowerCase().indexOf("pwr") !== -1) {
                 activeGPU = GPU;
             }
+
+            if(this._menuItems[GPU.busID] === undefined) {
+                this._menuItems[GPU.busID] = new GPUMenuItem({
+                    menu: this.menu,
+                    GPU: GPU
+                });
+
+                this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+            }
+
+            this._menuItems[GPU.busID].refresh(GPU);
         }
 
         if (activeGPU === undefined) {
@@ -150,5 +162,69 @@ SwitcherooStatusIndicator.prototype = {
         this._panelIndicator.text = activeGPU.vendor;
 
         return true;
+    }
+};
+
+function GPUMenuItem(parameters) {
+    this.menu = parameters.menu;
+    this._init();
+}
+
+GPUMenuItem.prototype = {
+    __proto__: PopupMenu.PopupBaseMenuItem.prototype,
+    _init: function() {
+        PopupMenu.PopupBaseMenuItem.prototype._init.call(this, {
+            style_class: "switcheroo-gpu-menu-item",
+            reactive: false
+        });
+
+        this._parentBox = new St.BoxLayout({
+            x_expand: true,
+            style_class: "switcheroo-gpu-menu-item-parent-box"
+        });
+
+        this._leftBox = new St.BoxLayout({
+            vertical: true,
+            style_class: "system-menu-action switcheroo-menu-left-box",
+        });
+        this._vendorName = new St.Label({
+            style_class: "switcheroo-menu-vendor",
+        });
+        this._gpuName = new St.Label({
+            style_class: "switcheroo-menu-gpu"
+        });
+        this._leftBox.add_actor(this._vendorName);
+        this._leftBox.add_actor(this._gpuName);
+
+        this._rightBox = new St.BoxLayout({
+            vertical: true,
+            style_class: "switcheroo-menu-right-box",
+            x_align: Clutter.ActorAlign.END,
+            x_expand: true
+        });
+
+        this._powerState = new St.Label({
+            style_class: "switcheroo-menu-property switcheroo-menu-power-state"
+        });
+        this._connectedToDisplay = new St.Label({
+            style_class: "switcheroo-menu-property switcheroo-menu-connected-to-display"
+        });
+        this._rightBox.add_actor(this._powerState);
+        this._rightBox.add_actor(this._connectedToDisplay);
+
+        this._parentBox.add_actor(this._leftBox);
+        this._parentBox.add_actor(this._rightBox);
+
+        this.actor.add_actor(this._parentBox, {expand: true});
+        this.menu.addMenuItem(this);
+    },
+    refresh: function(GPU) {
+        this.GPU = GPU;
+
+        this._vendorName.text = this.GPU.vendor;
+        this._gpuName.text = this.GPU.name;
+
+        this._connectedToDisplay.text = GPU.connected ? _("Connected to display") : "";
+        this._powerState.text = GPU.powerState;
     }
 };
