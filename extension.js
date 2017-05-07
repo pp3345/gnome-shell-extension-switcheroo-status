@@ -54,7 +54,7 @@ function GPU(parameters) {
 }
 
 GPU.prototype = {
-    _lpsci: function() {
+    _lpsci: function () {
         // For some strange reason lspci always triggers activation of the dGPU, so let's cache results
         if (lspciCache[this.busID] !== undefined) {
             return lspciCache[this.busID];
@@ -87,6 +87,14 @@ GPU.prototype = {
     },
     get vendor() {
         return this._lpsci()[1];
+    },
+    get powerStateName() {
+        return {
+                Pwr: "Powered on",
+                Off: "Powered off",
+                DynOff: "Dynamic powered off",
+                DynPwr: "Dynamic powered on"
+            }[this.powerState] || this.powerState;
     }
 };
 
@@ -155,7 +163,7 @@ SwitcherooStatusIndicator.prototype = {
                 activeGPU = GPU;
             }
 
-            if(this._menuItems[GPU.busID] === undefined) {
+            if (this._menuItems[GPU.busID] === undefined) {
                 this._menuItems[GPU.busID] = new GPUMenuItem({
                     menu: this.menu,
                     GPU: GPU
@@ -187,7 +195,7 @@ function GPUMenuItem(parameters) {
 
 GPUMenuItem.prototype = {
     __proto__: PopupMenu.PopupBaseMenuItem.prototype,
-    _init: function() {
+    _init: function () {
         PopupMenu.PopupBaseMenuItem.prototype._init.call(this, {
             style_class: "switcheroo-gpu-menu-item",
             reactive: false
@@ -233,13 +241,13 @@ GPUMenuItem.prototype = {
         this.actor.add_actor(this._parentBox, {expand: true});
         this.menu.addMenuItem(this);
     },
-    refresh: function(GPU) {
+    refresh: function (GPU) {
         this.GPU = GPU;
 
         this._vendorName.text = this.GPU.vendor;
         this._gpuName.text = this.GPU.name;
 
         this._connectedToDisplay.text = GPU.connected ? _("Connected to display") : "";
-        this._powerState.text = GPU.powerState;
+        this._powerState.text = GPU.powerStateName;
     }
 };
