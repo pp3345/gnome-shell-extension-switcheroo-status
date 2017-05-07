@@ -54,13 +54,13 @@ function GPU(index, type, connected, powerState, busID) {
 }
 
 GPU.prototype = {
-    get name() {
+    _lpsci: function() {
         // For some strange reason lspci always triggers activation of the dGPU, so let's cache results
         if (lspciCache[this.busID] !== undefined) {
             return lspciCache[this.busID];
         }
 
-        let [success, output] = GLib.spawn_command_line_sync("lspci -s " + this.busID);
+        let [success, output] = GLib.spawn_command_line_sync("lspci -mm -s " + this.busID);
         if (!success) {
             log("lspci failed");
             return "Unknown";
@@ -73,11 +73,20 @@ GPU.prototype = {
             return "Unknown";
         }
 
-        lspciCache[this.busID] = output.slice(this.busID.length).split(":", 2)[1].trim();
+        lspciCache[this.busID] = [];
+        let regex = /(?:"([A-Za-z0-9\[\]\s]+)")/g;
+        let result;
+
+        while ((result = regex.exec(output)) !== null)
+            lspciCache[this.busID].push(result[1]);
+
         return lspciCache[this.busID];
     },
+    get name() {
+        return this._lpsci()[2];
+    },
     get vendor() {
-        return this.name.split(" ", 2)[0];
+        return this._lpsci()[1];
     }
 };
 
