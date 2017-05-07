@@ -45,12 +45,12 @@ function log(message) {
     global.log(LOG_PREFIX + " " + message);
 }
 
-function GPU(index, type, connected, powerState, busID) {
-    this.index = index;
-    this.type = type;
-    this.connected = connected;
-    this.powerState = powerState;
-    this.busID = busID;
+function GPU(parameters) {
+    this.index = parameters.index;
+    this.type = parameters.type;
+    this.connected = parameters.connected;
+    this.powerState = parameters.powerState;
+    this.busID = parameters.busID;
 }
 
 GPU.prototype = {
@@ -132,7 +132,13 @@ SwitcherooStatusIndicator.prototype = {
             // 0:IGD:+:Pwr:0000:00:02.0
             let values = line.match(/^([0-9]):([A-Z]+):([ +]):([A-Za-z]+):[0-9]+:([0-9:\.]+)$/);
             values.shift();
-            GPUs.push(new GPU(values[0], values[1], values[2] === "+", values[3], values[4]));
+            GPUs.push(new GPU({
+                index: values[0],
+                type: values[1],
+                connected: values[2] === "+",
+                powerState: values[3],
+                busID: values[4]
+            }));
         }
 
         return GPUs;
