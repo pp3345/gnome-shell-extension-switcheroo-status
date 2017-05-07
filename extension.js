@@ -60,7 +60,7 @@ GPU.prototype = {
             return lspciCache[this.busID];
         }
 
-        let [success, output] = GLib.spawn_command_line_sync("sh -c \"lspci | grep " + this.busID + "\"");
+        let [success, output] = GLib.spawn_command_line_sync("lspci -s " + this.busID);
         if (!success) {
             log("lspci failed");
             return "Unknown";
