@@ -95,6 +95,12 @@ GPU.prototype = {
                 DynOff: "Dynamic powered off",
                 DynPwr: "Dynamic powered on"
             }[this.powerState] || this.powerState;
+    },
+    get typeName() {
+        return {
+            IGD: "Integrated graphics",
+            DIS: "Discrete graphics"
+        }[this.type] || this.type;
     }
 };
 
@@ -210,12 +216,16 @@ GPUMenuItem.prototype = {
             vertical: true,
             style_class: "system-menu-action switcheroo-menu-left-box",
         });
+        this._gpuType = new St.Label({
+            style_class: "switcheroo-menu-gpu-type"
+        });
         this._vendorName = new St.Label({
             style_class: "switcheroo-menu-vendor",
         });
         this._gpuName = new St.Label({
             style_class: "switcheroo-menu-gpu"
         });
+        this._leftBox.add_actor(this._gpuType);
         this._leftBox.add_actor(this._vendorName);
         this._leftBox.add_actor(this._gpuName);
 
@@ -244,10 +254,11 @@ GPUMenuItem.prototype = {
     refresh: function (GPU) {
         this.GPU = GPU;
 
+        this._gpuType.text = this.GPU.typeName;
         this._vendorName.text = this.GPU.vendor;
         this._gpuName.text = this.GPU.name;
 
-        this._connectedToDisplay.text = GPU.connected ? _("Connected to display") : "";
-        this._powerState.text = GPU.powerStateName;
+        this._connectedToDisplay.text = this.GPU.connected ? _("Connected to display") : "";
+        this._powerState.text = this.GPU.powerStateName;
     }
 };
