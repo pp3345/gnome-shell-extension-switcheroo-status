@@ -110,10 +110,10 @@ function SwitcherooStatusIndicator() {
 
 SwitcherooStatusIndicator.prototype = {
     __proto__: PanelMenu.Button.prototype,
-    _menuItems: {},
     _init: function () {
         PanelMenu.Button.prototype._init.call(this, St.Align.START);
 
+        this._menuItems = {};
         this._layout = new St.BoxLayout();
         this._panelIndicator = new St.Label({
             text: "Unknown",
